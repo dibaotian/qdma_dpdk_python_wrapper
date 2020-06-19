@@ -18,7 +18,7 @@ Python 2.7
 
 ## 2 Getting Started
 
-1) Set up the Hardware
+##### 1) Set up the Hardware
 
 Program the QDMA  shell bit/MCS to card (You may need JTAG, please power cycle server after program)
 
@@ -46,14 +46,14 @@ Using the $> lspci -vd 10ee: cmd check,  you will find the following device if t
 	
 	Capabilities: [180] Alternative Routing-ID Interpretation (ARI)
 
-2) Build the software, please refer to the link below
+##### 2) Build the software, please refer to the link below
 https://xilinx.github.io/dma_ip_drivers/2019.2/DPDK/html/build.html
 
-3) Setup the DPDK environment
+##### 3) Setup the DPDK environment
 
 Put the pf_init.sh in the <dpdk_root> and run, the script support load the load vfio-pci/igbuio in the PF0
 
-4) Run the application
+##### 4) Run the application
 
  $>python qdma_dpdk_plugin.py <cmd, parameter>
  
