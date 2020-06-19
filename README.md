@@ -54,7 +54,9 @@ https://xilinx.github.io/dma_ip_drivers/2019.2/DPDK/html/build.html
 Put the pf_init.sh in the <dpdk_root> and run, the script support load the load vfio-pci/igbuio in the PF0
 
 4) Run the application
+
  $>python qdma_dpdk_plugin.py <cmd, parameter>
+ 
  cmd example ./qdma_testapp -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0
 
 
