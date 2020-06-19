@@ -15,12 +15,12 @@ DPDK dpdk-stable-18.11.5
 Alveo card U50
 
 Python 2.7
- 
 
-##2 Getting Started
-1 Set up the Hardware, Program the QDMA MCS to card (you may need JTAG, please power cycle server after program)
+## 2 Getting Started
 
-using the #> lspci -vd 10ee: check  you will find the qdma device as following if the QDMA is programed succeed
+1) Set up the Hardware, Program the QDMA MCS to card (you may need JTAG, please power cycle server after program)
+
+using the #> lspci -vd 10ee: check,  you will find the qdma device as following if the QDMA is programed succeed
 
     xx:xx.0 Memory controller: Xilinx Corporation Device 913f
 
@@ -43,21 +43,23 @@ using the #> lspci -vd 10ee: check  you will find the qdma device as following i
 	Capabilities: [140] Single Root I/O Virtualization (SR-IOV)
 	
 	Capabilities: [180] Alternative Routing-ID Interpretation (ARI)
-	
 
-
-2 build the software, please refrence folloing link
+2) Build the software, please refer to the link below
 https://xilinx.github.io/dma_ip_drivers/2019.2/DPDK/html/build.html
 
+3) Setup the DPDK environment
 
+Put the pf_init.sh in the <dpdk_root> and run, the script support load the load vfio-pci/igbuio in the PF0
 
+4) Run the application
 
 
 ##3 Known issues
 
-reg dump will cause host crash
+reg_dump cause host crash
 
 ##4  Related document
+
 https://xilinx.github.io/dma_ip_drivers/2019.1/DPDK/html/index.html
 https://www.xilinx.com/support/documentation/ip_documentation/qdma/v3_0/pg302-qdma.pdf
 https://www.xilinx.com/support/answers/71453.html

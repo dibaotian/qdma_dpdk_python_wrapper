@@ -1,63 +1,74 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os
 import sys
+import time
 import pexpect
 
-#basedir = os.path.dirname(__file__)
-#print ("basedir:" + basedir)
-
-def send_cmd(self):
-    while True:
-        self.process.expect("xilinx-app>")
-        self.process.logfile_read = sys.stdout
-        # print(dpdkp.after)
-        # dpdkp.sendline('help\r')
-        # dpdkp.expect("xilinx-app>")
-        # print(dpdkp.after)
-        # self.process.logfile_read = sys.stdout
-
-        str = raw_input("")
-
-        if str:
-            if str == " ":
-                self.process.sendline('\r\n')
-            elif str in ['exit', 'Exit', 'quit', 'Quit']:
-                self.kill_process()
-            else:
-                self.process.sendline(str)
-        else:
-            self.process.sendline('\r\n')
+# basedir = os.path.dirname(__file__)
+# print ("basedir:" + basedir)
 
 
 class Qdmaplugin():
-    def __init__(self, cmd):
+    def __init__(self, cmd, debug=False):
         """
         Start the qdma app
         :param cmd:
-        cmd represents qdma comand string
+        :param debug
+        cmd represents qdma command string
+        debug option, True/False , make the subprocess output print to screen
         """
-        self.cmd = cmd
-
-        print ("##################################################################")
-        print ("###########start the Xilinx QDMA DPDK plugin service##############")
-        print ("##################################################################")
 
         # todo parameter check
+        print ("  ")
+        self.cmd = cmd
+        self.debug = debug
+        print "execute command %s,   debug mode is %s" % (self.cmd, self.debug)
+        print ("  ")
+
+        print ("#####################################################################")
+        print ("###########Starting the Xilinx QDMA DPDK plugin service##############")
+        print ("#####################################################################")
+        print ("  ")
 
         try:
-            # self.process = pexpect.spawn(self.cmd, timeout=None, logfile=sys.stdout)
-            self.process = pexpect.spawn(self.cmd, timeout=None)
-        except:
-            print "qdma app start error"
+            if self.debug:
+                print "###plugin execute in debug mode###"
+                self.process = pexpect.spawn(self.cmd, timeout=None, logfile=sys.stdout)
+                print self.process
+                self.process.expect("xilinx-app>", timeout=60)
+            else:
+                print "###plugin execute in normal mode###"
+                self.process = pexpect.spawn(self.cmd, timeout=None)
+        except Exception, e:
+            print "###qdma app start failure###"
+            print e
+            self.exit_with_usage()
 
     def flush_output(self):
         """
         Clear the contents of readbufer
         :return:
         """
-        self.process.expect("xilinx-app>")
+        try:
+            self.process.expect("xilinx-app>", timeout=60)
+            result = self.process.before
+        except pexpect.EOF:
+            result = "EOF"
+        except pexpect.TIMEOUT:
+            result = "TIMEOUT"
+        finally:
+            return result
+
+    def set_echo(self, switch):
+        """
+        Set the subprogram response method.
+        :param switch:
+        :return:
+        switch True -enable / False-disable
+        """
+        self.process.setecho(switch)
 
     def port_init(self, port_id, num_queues, st_queues, ring_depth, pkt_buffer_size):
         """
@@ -80,14 +91,19 @@ class Qdmaplugin():
         example  port_init 0 1 1 1024 2048
         """
 
-        port_cmd = 'port_init %s %s %s %s %s' % (port_id, num_queues, st_queues, ring_depth, pkt_buffer_size)
+        try:
+            port_cmd = 'port_init %s %s %s %s %s' % (port_id, num_queues, st_queues, ring_depth, pkt_buffer_size)
 
-        self.process.sendline(port_cmd)
-        self.process.expect("xilinx-app>")
+            self.process.sendline(port_cmd)
+            self.process.expect("xilinx-app>", timeout=60)
 
-        result = self.process.before
-        return result
-        # print self.process.after
+            result = self.process.before
+        except pexpect.EOF:
+            result = "EOF"
+        except pexpect.TIMEOUT:
+            result = "TIMEOUT"
+        finally:
+            return result
 
     def port_close(self, port_id):
         """
@@ -143,11 +159,18 @@ class Qdmaplugin():
                 The first PCIe function that is bound has port id as 0
         """
 
-        port_cmd = 'port_remove %s' % port_id
-        self.process.sendline(port_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            port_cmd = 'port_remove %s' % port_id
+            self.process.sendline(port_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "EOF"
+        except pexpect.TIMEOUT:
+            result = "TIMEOUT"
+        finally:
+            return result
+
         # self.process.logfile_read = sys.stdout
 
     def reg_read(self, port_id, bar_num, address):
@@ -207,12 +230,17 @@ class Qdmaplugin():
         """
 
         # currently this method will cause host crash
-
-        reg_cmd = 'reg_dump %s' % (port_id)
-        self.process.sendline(reg_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            reg_cmd = 'reg_dump %s' % (port_id)
+            self.process.sendline(reg_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "EOF"
+        except pexpect.TIMEOUT:
+            result = "TIMEOUT"
+        finally:
+            return result
 
     def queue_dump(self, port_id, queue_id):
         """
@@ -273,7 +301,7 @@ class Qdmaplugin():
         """
 
         dma_to_dev_cmd = 'dma_to_device %s %s %s %s %s %s' % (
-        port_id, num_queues, input_filename, dst_addr, size, iterations)
+            port_id, num_queues, input_filename, dst_addr, size, iterations)
         self.process.sendline(dma_to_dev_cmd)
         self.process.expect("xilinx-app>")
         result = self.process.before
@@ -302,19 +330,47 @@ class Qdmaplugin():
         """
 
         dma_from_dev_cmd = 'dma_to_device %s %s %s %s %s %s' % (
-        port_id, num_queues, output_filename, src_addr, size, iterations)
+            port_id, num_queues, output_filename, src_addr, size, iterations)
         self.process.sendline(dma_from_dev_cmd)
         self.process.expect("xilinx-app>")
         result = self.process.before
         return result
 
+    def send_cmd(self):
+        while True:
+            self.process.expect("xilinx-app>")
+            self.process.logfile_read = sys.stdout
+            # print(dpdkp.after)
+            # dpdkp.sendline('help\r')
+            # dpdkp.expect("xilinx-app>")
+            # print(dpdkp.after)
+            # self.process.logfile_read = sys.stdout
+
+            str = raw_input("")
+
+            if str:
+                if str == " ":
+                    self.process.sendline('\r\n')
+                elif str in ['exit', 'Exit', 'quit', 'Quit']:
+                    self.kill_process()
+                else:
+                    self.process.sendline(str)
+            else:
+                self.process.sendline('\r\n')
+
     def is_qdma_app_run(self):
         """
         check if the adma application is running
-        :return: Ture-running, false-dead
+        :return: True-running, false-dead
         """
         return self.process.isalive()
 
+    def process_close(self):
+        """
+        Close the QDMA app
+        :return: execution result
+        """
+        return self.process.close()
 
     def process_return(self):
         self.process.kill(1)
@@ -324,9 +380,20 @@ class Qdmaplugin():
         self.process.sendintr()
         print "Kill qdma process"
 
+    def exit_with_usage(self):
+        """
+        If an error occurs in the middle of the program, print the prompt message and exit
+        :return: exit
+        """
+        print globals()['__doc__']
+        os._exit(1)
+
+    def get_methods(self):
+        return(list(filter(lambda m: not m.startswith("__") and not m.endswith("__")
+                                     and callable(getattr(self, m)), dir(self))))
+
 
 if __name__ == "__main__":
-
     dpdkp = Qdmaplugin(cmd)
     # dpdkp.run()
     # ret = dpdkp.send_cmd()
@@ -336,14 +403,11 @@ if __name__ == "__main__":
     ret = dpdkp.port_init(0, 1, 1, 1024, 2048)
     # print ret
 
-    ret = dpdkp.dma_to_device(0, 1,'data/datafile0_4K.bin', 0, 4096, 1)
+    ret = dpdkp.dma_to_device(0, 1, 'data/datafile0_4K.bin', 0, 4096, 1)
     print ret
 
     ret = dpdkp.dma_from_device(0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, 1)
     print ret
-
-
-
 
     # ret = dpdkp.reg_read(0, 0, 0)
     # print ret
@@ -372,17 +436,11 @@ if __name__ == "__main__":
     ret = dpdkp.port_close(0)
     print ret
 
-
-
-
-
     # dpdkp.port_close(0)
 
     # dpdkp.port_remove(0)
 
     # dpdkp.port_init(port_id=0, num_queues=1, st_queues=1, ring_depth=1024, pkt_buffer_size=2048)
-
-
 
     # dpdkp = pexpect.spawn(cmd,  logfile=sys.stdout)
     # #print str(dpdkp)
@@ -398,11 +456,6 @@ if __name__ == "__main__":
     #     str = raw_input("");
     #     if str:
     #         dpdkp.sendline(str)
-
-
-
-
-
 
     # dpdkp = subprocess.Popen(args=cmd,
     #                          stdin=subprocess.PIPE,
@@ -420,7 +473,6 @@ if __name__ == "__main__":
     #     qdma_cmd = raw_input('')
     #     dpdkp.stdin.write(qdma_cmd + "\n")  # Include '\n'
     #     dpdkp.stdin.flush()
-
 
     # for stdout_line in iter(dpdkp.stdout.readline, ""):
     #     print stdout_line
@@ -448,7 +500,6 @@ if __name__ == "__main__":
     #     dpdkp.stdin.write(s + "\n")  # Include '\n'
     #     dpdkp.stdin.flush()
 
-
     # dpdkp.stdin.write(b"help\n")
     # dpdkp.stdin.close()
     # while True:
@@ -468,8 +519,6 @@ if __name__ == "__main__":
     # else:
     #     out = stdout.decode('utf-8')
     #     print (out)
-
-
 
     # try:
     #     while dpdkp.poll() is None:
@@ -510,21 +559,19 @@ if __name__ == "__main__":
     # except:
     #    print('exception')
 
+# dpdkp.communicate(cmd_help)
 
-#dpdkp.communicate(cmd_help)
+# dpdkp.communicate(cmd_port_init)
 
-#dpdkp.communicate(cmd_port_init)
-
-#dpdkp.communicate(cmd_port_close)
-
+# dpdkp.communicate(cmd_port_close)
 
 
-#ret = dpdkp.wait()
-#print (ret)
+# ret = dpdkp.wait()
+# print (ret)
 
 
-#dpdkp.poll()
-#print(dpdkp.stdout.read())
-#dpdkp.wait()
+# dpdkp.poll()
+# print(dpdkp.stdout.read())
+# dpdkp.wait()
 
-#print(dpdkp.returncode)
+# print(dpdkp.returncode)
