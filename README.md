@@ -58,13 +58,13 @@ Put the pf_init.sh in the <dpdk_root> and run, the script support load the load 
  cmd example ./qdma_testapp -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0
 
 
-##3 Known issues
+## 3 Known issues
 
 reg_dump cause host crash
 
 dma_from_device fail
 
-##4  Related document
+## 4  Related document
 
 https://xilinx.github.io/dma_ip_drivers/2019.1/DPDK/html/index.html
 https://www.xilinx.com/support/documentation/ip_documentation/qdma/v3_0/pg302-qdma.pdf
