@@ -329,7 +329,7 @@ class Qdmaplugin():
         iterations represents the number of loops to repeat the same DMA transfer
         """
 
-        dma_from_dev_cmd = 'dma_to_device %s %s %s %s %s %s' % (
+        dma_from_dev_cmd = 'dma_from_device %s %s %s %s %s %s' % (
             port_id, num_queues, output_filename, src_addr, size, iterations)
         self.process.sendline(dma_from_dev_cmd)
         self.process.expect("xilinx-app>")

@@ -4,20 +4,55 @@
 import sys
 import qdma_dpdk_python_wrapper
 import socket
+import subprocess
 
-# qdma_app folder path
-exe_path = './'
-# app name
-exe_name = 'qdma_testapp'
-# parameter
-param = ' -c 0x1f -n 4 -w 3b:00.0'
-# combine
-cmd = exe_path + exe_name + param
+CPU_MASK = '0x1f'
+MEM_CHAN = 4
+
+QUEUE_BASE = 0
+
+BAR0 = 0
+BAR0 = 1
+CMPT_DESC_LEN = 32
+PREFETCH_ENABLE = 1
+PREFETCH_DISABLE = 0
+MAX_QUEUES = 64
+
+# param_org = " -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0"
+
+# param_org = " -c 0x1f -n 4 -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s --config=\"(%s)\""
+
+param_org = " -c %s -n %s -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s"
+
 
 HOST = '127.0.0.1'
 PORT = 9527
 
 if __name__ == "__main__":
+
+    # qdma_app folder path
+    exe_path = './'
+
+    # app name
+    exe_name = 'qdma_testapp'
+
+    # parameter
+    drv_list = ['vfio-pci', 'igb_uio']
+    bdf = subprocess.Popen(args='lspci -vd 10ee:', stdout=subprocess.PIPE, shell=True)
+    out, err = bdf.communicate()
+    if 'Xilinx Corporation Device' in out:
+        if any(drv in out for drv in drv_list):
+            PF0_bdf = out[0:8]
+            param = param_org % (CPU_MASK, MEM_CHAN, PF0_bdf, QUEUE_BASE, BAR0, CMPT_DESC_LEN, PREFETCH_DISABLE)
+        else:
+            print "QDMA device does not bind the DPDK, please use dodk_bind.py to bind the vfio or igb-uio"
+            exit(-1)
+    else:
+        print "Can not find xilinx QDMA device, Please Check your system"
+        exit(-1)
+
+    # combine
+    cmd = exe_path + exe_name + param
 
     # todo parameters check
     if len(sys.argv) > 3:
@@ -55,10 +90,14 @@ if __name__ == "__main__":
     print dpdkp.get_methods()
 
     # create
-    ret = dpdkp.port_init(0, 1, 1, 1024, 2048)
+    ret = dpdkp.port_init(0, 2, 2, 1024, 2048)
     print ret
 
     # send data
+    ret = dpdkp.dma_to_device(0, 1, 'data/datafile0_4K.bin', 0, 4096, 1)
+    print ret
+
+    # receive data
     ret = dpdkp.dma_from_device(0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, 1)
     print ret
 
@@ -70,11 +109,11 @@ if __name__ == "__main__":
     ret = dpdkp.reg_write(0, 0, 0, 0x1)
     print ret
 
-    #  It will cause system crash
+    # It will cause system crash
     # ret = dpdkp.reg_dump(0)
     # print ret
 
-    # dump the queue status
+    # # dump the queue status
     ret = dpdkp.queue_dump(0, 0)
     print ret
 
@@ -95,6 +134,7 @@ if __name__ == "__main__":
     print ret
 
     # todo get the api call form North management plane
+    # start a Daemon for service
 
     exit(0)
 

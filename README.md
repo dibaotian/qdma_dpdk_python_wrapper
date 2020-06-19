@@ -4,7 +4,7 @@
 
 CentOS 7.4 1708 3.10.0-862.el7.x86_64
 
-GCC 4.8.5 20150623 (Red Hat 4.8.5-36) (GCC)
+GCC 4.8.5 20150623 (Red Hat 4.8.5-36)
 
 Xilinx QDMA IP (Vivado 2018.3)
 
@@ -18,9 +18,11 @@ Python 2.7
 
 ## 2 Getting Started
 
-1) Set up the Hardware, Program the QDMA MCS to card (you may need JTAG, please power cycle server after program)
+1) Set up the Hardware
 
-using the #> lspci -vd 10ee: check,  you will find the qdma device as following if the QDMA is programed succeed
+Program the QDMA  shell bit/MCS to card (You may need JTAG, please power cycle server after program)
+
+Using the $> lspci -vd 10ee: cmd check,  you will find the following device if the QDMA shell is programed succeed
 
     xx:xx.0 Memory controller: Xilinx Corporation Device 913f
 
@@ -52,11 +54,15 @@ https://xilinx.github.io/dma_ip_drivers/2019.2/DPDK/html/build.html
 Put the pf_init.sh in the <dpdk_root> and run, the script support load the load vfio-pci/igbuio in the PF0
 
 4) Run the application
+ $>python qdma_dpdk_plugin.py <cmd, parameter>
+ cmd example ./qdma_testapp -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0
 
 
 ##3 Known issues
 
 reg_dump cause host crash
+
+dma_from_device fail
 
 ##4  Related document
 
