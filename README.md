@@ -24,7 +24,7 @@ qdma_dpdk_plugin.py           Plugin framework
 
 pf_inis.sh                    Prepare dpdk env 
 
-DATA/                         test data file
+data/                         test data file
 
 ## 3 Getting Started
 
