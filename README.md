@@ -18,9 +18,13 @@ Python 2.7
 
 ## 2 Introduction 
 
-qdma_dpdk_python_wrapper.py   Base Class
+qdma_dpdk_python_wrapper.py   Qdmaplugin Base Class
 
-qdma_dpdk_plugin.py    plugin framework
+qdma_dpdk_plugin.py           Plugin framework
+
+pf_inis.sh                    Prepare dpdk env 
+
+DATA/                         test data file
 
 ## 3 Getting Started
 
