@@ -34,12 +34,17 @@ PREFETCH_ENABLE = 1
 PREFETCH_DISABLE = 0
 MAX_QUEUES = 64
 
-# param_org = " -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0"
+PORT0 = 0
+ALL_Q_NUM_8 = 8
+ST_Q_NUM_8 = 8
+RING_DEEP_1K = 1024
+PKT_BUFF_SIZE_4K = 4096
+ITERATION1 = 1
 
-# param_org = " -c 0x1f -n 4 -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s --config=\"(%s)\""
+
+# param_org = " -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0 --config=\"(64)\""
 
 param_org = " -c %s -n %s -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s"
-
 
 HOST = '127.0.0.1'
 PORT = 9527
@@ -106,47 +111,47 @@ if __name__ == "__main__":
     print dpdkp.get_methods()
 
     # create
-    ret = dpdkp.port_init(0, 2, 2, 1024, 2048)
+    ret = dpdkp.port_init(PORT0, ALL_Q_NUM_8, ST_Q_NUM_8, RING_DEEP_1K, PKT_BUFF_SIZE_4K)
     print ret
 
     # send data
-    ret = dpdkp.dma_to_device(0, 1, 'data/datafile0_4K.bin', 0, 4096, 1)
+    ret = dpdkp.dma_to_device(PORT0, 1, 'data/datafile0_4K.bin', 0, 4096, ITERATION1)
     print ret
 
     # receive data
-    ret = dpdkp.dma_from_device(0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, 1)
+    ret = dpdkp.dma_from_device(PORT0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, ITERATION1)
     print ret
 
     # read register
-    ret = dpdkp.reg_read(0, 0, 0)
+    ret = dpdkp.reg_read(PORT0, 0, 0)
     print ret
 
     # write register
-    ret = dpdkp.reg_write(0, 0, 0, 0x1)
+    ret = dpdkp.reg_write(PORT0, 0, 0, 0x5a5a)
     print ret
 
     # It will cause system crash
-    # ret = dpdkp.reg_dump(0)
+    # ret = dpdkp.reg_dump(PORT0)
     # print ret
 
     # # dump the queue status
-    ret = dpdkp.queue_dump(0, 0)
+    ret = dpdkp.queue_dump(PORT0, 0)
     print ret
 
     # dump the port descriptor
-    ret = dpdkp.desc_dump(0, 0)
+    ret = dpdkp.desc_dump(PORT0, 0)
     print ret
 
     # reset the port
-    ret = dpdkp.port_reset(0, 1, 1, 1024, 2048)
+    ret = dpdkp.port_reset(PORT0, ALL_Q_NUM_8, ST_Q_NUM_8, RING_DEEP_1K, PKT_BUFF_SIZE_4K)
     print ret
 
     # close the port
-    ret = dpdkp.port_close(0)
+    ret = dpdkp.port_close(PORT0)
     print ret
 
     # remove the port
-    ret = dpdkp.port_remove(0)
+    ret = dpdkp.port_remove(PORT0)
     print ret
 
     # todo get the api call form North management plane
