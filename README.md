@@ -16,7 +16,13 @@ Alveo card U50
 
 Python 2.7
 
-## 2 Getting Started
+## 2 Introduction 
+
+qdma_dpdk_python_wrapper.py   Base Class
+
+qdma_dpdk_plugin.py    plugin framework
+
+## 3 Getting Started
 
 ##### 1) Set up the Hardware
 
