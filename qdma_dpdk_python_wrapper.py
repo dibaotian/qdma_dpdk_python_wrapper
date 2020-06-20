@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+@Author  :   Minxie
+
+@License :   (C) Copyright 2013-2020
+
+@Contact :   Minx@xilinx.com
+
+@Software:   Xilinx QDMA DPDK plugin base class
+
+@File    :   qdma_dpdk_python_wrapper.py
+
+@Time    :   2020-06-15
+
+@Desc    :
+'''
+
 import os
 import sys
 import time

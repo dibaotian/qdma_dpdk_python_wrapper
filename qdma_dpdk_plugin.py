@@ -1,6 +1,22 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+'''
+@Author  :   Minxie
+
+@License :   (C) Copyright 2013-2020
+
+@Contact :   Minx@xilinx.com
+
+@Software:   Xilinx QDMA DPDK plugin
+
+@File    :   qdma_dpdk_plugin.py
+
+@Time    :   2020-06-15
+
+@Desc    :
+'''
+
 import sys
 import qdma_dpdk_python_wrapper
 import socket
