@@ -74,7 +74,7 @@ Put the pf_init.sh in the <dpdk_root> and run, the script support load the load 
 
 reg_dump cause host crash
 
-dma_from_device fail
+ST mode dma_from_device fail (need customer logic Cooperate)
 
 ## 5  Related document
 
