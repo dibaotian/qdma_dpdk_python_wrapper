@@ -71,9 +71,9 @@ class Qdmaplugin():
             self.process.expect("xilinx-app>", timeout=60)
             result = self.process.before
         except pexpect.EOF:
-            result = "EOF"
+            result = "flush_output EOF"
         except pexpect.TIMEOUT:
-            result = "TIMEOUT"
+            result = "flush_output TIMEOUT"
         finally:
             return result
 
@@ -115,9 +115,9 @@ class Qdmaplugin():
 
             result = self.process.before
         except pexpect.EOF:
-            result = "EOF"
+            result = "port_init EOF"
         except pexpect.TIMEOUT:
-            result = "TIMEOUT"
+            result = "port_init TIMEOUT"
         finally:
             return result
 
@@ -131,11 +131,17 @@ class Qdmaplugin():
                 The first PCIe function that is bound has port id as 0
         """
 
-        port_cmd = 'port_close %s' % port_id
-        self.process.sendline(port_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            port_cmd = 'port_close %s' % port_id
+            self.process.sendline(port_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "port_close EOF"
+        except pexpect.TIMEOUT:
+            result = "port_close TIMEOUT"
+        finally:
+            return result
         # self.process.logfile_read = sys.stdout
 
     def port_reset(self, port_id, num_queues, st_queues, ring_depth, pkt_buff_size):
@@ -158,12 +164,18 @@ class Qdmaplugin():
         pkt-buff-size represents the size of the data that a single C2H or H2C descriptor can support
         """
 
-        port_cmd = 'port_reset %s %s %s %s %s' % (port_id, num_queues, st_queues, ring_depth, pkt_buff_size)
-        self.process.sendline(port_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
-        # self.process.logfile_read = sys.stdout
+        try:
+            port_cmd = 'port_reset %s %s %s %s %s' % (port_id, num_queues, st_queues, ring_depth, pkt_buff_size)
+            self.process.sendline(port_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+            return result
+        except pexpect.EOF:
+            result = "port_reset EOF"
+        except pexpect.TIMEOUT:
+            result = "port_reset TIMEOUT"
+        finally:
+            return result
 
     def port_remove(self, port_id):
         """
@@ -181,9 +193,9 @@ class Qdmaplugin():
             self.process.expect("xilinx-app>")
             result = self.process.before
         except pexpect.EOF:
-            result = "EOF"
+            result = "port_remove EOF"
         except pexpect.TIMEOUT:
-            result = "TIMEOUT"
+            result = "port_remove TIMEOUT"
         finally:
             return result
 
@@ -205,12 +217,17 @@ class Qdmaplugin():
         address represents offset of the register in the PCIe BAR bar-num
         """
 
-        reg_cmd = 'reg_read %s %s %s' % (port_id, bar_num, address)
-        self.process.sendline(reg_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
-        # self.process.logfile_read = sys.stdout
+        try:
+            reg_cmd = 'reg_read %s %s %s' % (port_id, bar_num, address)
+            self.process.sendline(reg_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "reg_read EOF"
+        except pexpect.TIMEOUT:
+            result = "reg_read TIMEOUT"
+        finally:
+            return result
 
     def reg_write(self, port_id, bar_num, address, value):
         """
@@ -228,12 +245,17 @@ class Qdmaplugin():
         value represents the value to be written at the register offset address
         """
 
-        reg_cmd = 'reg_write %s %s %s %s' % (port_id, bar_num, address, value)
-        self.process.sendline(reg_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
-        # self.process.logfile_read = sys.stdout
+        try:
+            reg_cmd = 'reg_write %s %s %s %s' % (port_id, bar_num, address, value)
+            self.process.sendline(reg_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "reg_write EOF"
+        except pexpect.TIMEOUT:
+            result = "reg_write TIMEOUT"
+        finally:
+            return result
 
     def reg_dump(self, port_id):
         """
@@ -252,9 +274,9 @@ class Qdmaplugin():
             self.process.expect("xilinx-app>")
             result = self.process.before
         except pexpect.EOF:
-            result = "EOF"
+            result = "reg_dump EOF"
         except pexpect.TIMEOUT:
-            result = "TIMEOUT"
+            result = "reg_dump TIMEOUT"
         finally:
             return result
 
@@ -269,12 +291,17 @@ class Qdmaplugin():
                 The first PCIe function that is bound has port id as 0.
         queue-id represents the queue number relative to the port, whose context information needs to be logged
         """
-
-        dump_cmd = 'queue_dump %s %s' % (port_id, queue_id)
-        self.process.sendline(dump_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            dump_cmd = 'queue_dump %s %s' % (port_id, queue_id)
+            self.process.sendline(dump_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "queue_dump EOF"
+        except pexpect.TIMEOUT:
+            result = "queue_dump TIMEOUT"
+        finally:
+            return result
 
     def desc_dump(self, port_id, queue_id):
         """
@@ -287,12 +314,17 @@ class Qdmaplugin():
                 The first PCIe function that is bound has port id as 0.
         queue-id represents the queue number relative to the port, whose context information needs to be logged
         """
-
-        dump_cmd = 'desc_dump %s %s' % (port_id, queue_id)
-        self.process.sendline(dump_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            dump_cmd = 'desc_dump %s %s' % (port_id, queue_id)
+            self.process.sendline(dump_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "desc_dump EOF"
+        except pexpect.TIMEOUT:
+            result = "desc_dump TIMEOUT"
+        finally:
+            return result
 
     def dma_to_device(self, port_id, num_queues, input_filename, dst_addr, size, iterations):
         """
@@ -316,12 +348,18 @@ class Qdmaplugin():
         iterations represents the number of loops to repeat the same DMA transfer
         """
 
-        dma_to_dev_cmd = 'dma_to_device %s %s %s %s %s %s' % (
-            port_id, num_queues, input_filename, dst_addr, size, iterations)
-        self.process.sendline(dma_to_dev_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            dma_to_dev_cmd = 'dma_to_device %s %s %s %s %s %s' % (
+                port_id, num_queues, input_filename, dst_addr, size, iterations)
+            self.process.sendline(dma_to_dev_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "dma_to_device EOF"
+        except pexpect.TIMEOUT:
+            result = "dma_to_device TIMEOUT"
+        finally:
+            return result
 
     def dma_from_device(self, port_id, num_queues, output_filename, src_addr, size, iterations):
         """
@@ -345,12 +383,18 @@ class Qdmaplugin():
         iterations represents the number of loops to repeat the same DMA transfer
         """
 
-        dma_from_dev_cmd = 'dma_from_device %s %s %s %s %s %s' % (
-            port_id, num_queues, output_filename, src_addr, size, iterations)
-        self.process.sendline(dma_from_dev_cmd)
-        self.process.expect("xilinx-app>")
-        result = self.process.before
-        return result
+        try:
+            dma_from_dev_cmd = 'dma_from_device %s %s %s %s %s %s' % (
+                port_id, num_queues, output_filename, src_addr, size, iterations)
+            self.process.sendline(dma_from_dev_cmd)
+            self.process.expect("xilinx-app>")
+            result = self.process.before
+        except pexpect.EOF:
+            result = "dma_from_device EOF"
+        except pexpect.TIMEOUT:
+            result = "dma_from_device TIMEOUT"
+        finally:
+            return result
 
     def send_cmd(self):
         while True:

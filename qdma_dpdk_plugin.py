@@ -29,6 +29,7 @@ QUEUE_BASE = 0
 
 BAR0 = 0
 BAR1 = 1
+BAR2 = 2
 CMPT_DESC_LEN = 32
 PREFETCH_ENABLE = 1
 PREFETCH_DISABLE = 0
@@ -42,14 +43,26 @@ PKT_BUFF_SIZE_4K = 4096
 ITERATION1 = 1
 
 
-# param_org = " -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0 --config=\"(64)\""
+# param_org = " -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0"
 
-param_org = " -c %s -n %s -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s"
+# param_org = " -c %s -n %s -w %s queue_base=%s config_bar=%s cmpt_desc_len=%s desc_prefetch=%s"
+
+param_org = " -c %s -n %s -w %s queue_base=%s cmpt_desc_len=%s desc_prefetch=%s"
 
 HOST = '127.0.0.1'
 PORT = 9527
 
 if __name__ == "__main__":
+    
+    """
+    :param <qdma_testapp_run_cmd>
+    :param <debug_option>  True/False
+    :return: 0/-1
+    qdma_testapp_run_cmd  a string, it is same cmd str as it in linux bash shell
+        if runner do not input the parameter, 
+        the default is ./qdma_testapp -c 0x1f -n 4 -w <bdf> queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0
+    debug_option default is false, if set true you can get more print info
+    """
 
     # qdma_app folder path
     exe_path = './'
@@ -64,7 +77,8 @@ if __name__ == "__main__":
     if 'Xilinx Corporation Device' in out:
         if any(drv in out for drv in drv_list):
             PF0_bdf = out[0:8]
-            param = param_org % (CPU_MASK, MEM_CHAN, PF0_bdf, QUEUE_BASE, BAR0, CMPT_DESC_LEN, PREFETCH_DISABLE)
+            # param = param_org % (CPU_MASK, MEM_CHAN, PF0_bdf, QUEUE_BASE, BAR0, CMPT_DESC_LEN, PREFETCH_DISABLE)
+            param = param_org % (CPU_MASK, MEM_CHAN, PF0_bdf, QUEUE_BASE, CMPT_DESC_LEN, PREFETCH_DISABLE)
         else:
             print "QDMA device does not bind the DPDK, please use dodk_bind.py to bind the vfio or igb-uio"
             exit(-1)
@@ -114,45 +128,49 @@ if __name__ == "__main__":
     ret = dpdkp.port_init(PORT0, ALL_Q_NUM_8, ST_Q_NUM_8, RING_DEEP_1K, PKT_BUFF_SIZE_4K)
     print ret
 
-    # send data
-    ret = dpdkp.dma_to_device(PORT0, 1, 'data/datafile0_4K.bin', 0, 4096, ITERATION1)
+    # read register
+    ret = dpdkp.reg_read(PORT0, BAR0, '0x0')
     print ret
 
-    # receive data
-    ret = dpdkp.dma_from_device(PORT0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, ITERATION1)
-    print ret
+    # # send data
+    # ret = dpdkp.dma_to_device(PORT0, 1, 'data/datafile0_4K.bin', 0, 4096, ITERATION1)
+    # print ret
+    #
+    # # receive data
+    # ret = dpdkp.dma_from_device(PORT0, 1, 'data/port0_qcount0_size4k.bin', 0, 4096, ITERATION1)
+    # print ret
 
     # read register
-    ret = dpdkp.reg_read(PORT0, 0, 0)
+    ret = dpdkp.reg_read(PORT0, BAR0, '0x0')
     print ret
-
+    #
     # write register
-    ret = dpdkp.reg_write(PORT0, 0, 0, 0x5a5a)
-    print ret
+    # ret = dpdkp.reg_write(PORT0, 0, 0, 0x5a5a)
+    # print ret
 
     # It will cause system crash
     # ret = dpdkp.reg_dump(PORT0)
     # print ret
 
-    # # dump the queue status
-    ret = dpdkp.queue_dump(PORT0, 0)
-    print ret
-
-    # dump the port descriptor
-    ret = dpdkp.desc_dump(PORT0, 0)
-    print ret
-
+    # # # dump the queue status
+    # ret = dpdkp.queue_dump(PORT0, 0)
+    # print ret
+    #
+    # # dump the port descriptor
+    # ret = dpdkp.desc_dump(PORT0, 0)
+    # print ret
+    #
     # reset the port
     ret = dpdkp.port_reset(PORT0, ALL_Q_NUM_8, ST_Q_NUM_8, RING_DEEP_1K, PKT_BUFF_SIZE_4K)
     print ret
-
+    #
     # close the port
     ret = dpdkp.port_close(PORT0)
     print ret
 
     # remove the port
-    ret = dpdkp.port_remove(PORT0)
-    print ret
+    # ret = dpdkp.port_remove(PORT0)
+    # print ret
 
     # todo get the api call form North management plane
     # start a Daemon for service

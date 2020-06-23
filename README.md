@@ -65,9 +65,16 @@ Put the pf_init.sh in the <dpdk_root> and run, the script support load the load 
 
 ##### 4) Run the application
 
- $>python qdma_dpdk_plugin.py <cmd, parameter>
+ $>python qdma_dpdk_plugin.py <qdma_testapp_run_cmd>  <debug_option>
  
- cmd example ./qdma_testapp -c 0x1f -n 4 -w 3b:00.0 queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0
+ qdma_testapp_run_cmd:  a cmd string, it is same as the input in linux bash shell, default is "./qdma_testapp -c 0x1f -n 4 -w <bdf> queue_base=0 config_bar=0 cmpt_desc_len=32 desc_prefetch=0"
+
+ debug_option: True/False, default False, it set True, you can get more output print
+ 
+ example:
+ 
+ python qdma_dpdk_plugin.py "./<path>/qdma_test_app -c <CPU_MASK> -n <MEM_CHAN> -w <BDF> queue_base=<QUEUE_BASE> cmpt_desc_len=<CMPT_DESC_LEN> desc_prefetch=<PREFETCH_DISABLE>"  <True/False>
+
 
 
 ## 4 Known issues
